@@ -8,6 +8,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { SecureWrapper } from "@/components/common/SecureWrapper";
 import { SecurityMonitor } from "@/components/common/SecurityMonitor";
 import Index from "./pages/Index";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,14 @@ function App() {
                   <SecureWrapper>
                     <Index />
                     <SecurityMonitor />
+                  </SecureWrapper>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <SecureWrapper requiredRole="admin">
+                    <AdminPage />
                   </SecureWrapper>
                 } 
               />
