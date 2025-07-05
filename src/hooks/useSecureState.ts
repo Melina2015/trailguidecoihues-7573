@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { validateTextInput } from '@/utils/validation';
+import { sanitizeInput } from '@/utils/security';
 
 /**
  * Hook pour gérer l'état avec validation de sécurité
@@ -14,7 +14,9 @@ export function useSecureState<T>(initialValue: T, validator?: (value: T) => boo
     
     // Validation par défaut pour les chaînes
     if (typeof newValue === 'string') {
-      valid = validateTextInput(newValue as string);
+      // Use sanitizeInput and check if the value was modified
+      const sanitized = sanitizeInput(newValue as string);
+      valid = sanitized === newValue; // Valid if no sanitization was needed
     }
     
     // Validation personnalisée
