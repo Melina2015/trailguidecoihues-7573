@@ -108,6 +108,93 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      file_storage: {
+        Row: {
+          created_at: string | null
+          file_path: string
+          file_size: number
+          filename: string
+          id: string
+          is_public: boolean | null
+          mime_type: string
+          original_filename: string
+          related_id: string | null
+          related_table: string | null
+          updated_at: string | null
+          uploaded_by: string
+          virus_scan_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_path: string
+          file_size: number
+          filename: string
+          id?: string
+          is_public?: boolean | null
+          mime_type: string
+          original_filename: string
+          related_id?: string | null
+          related_table?: string | null
+          updated_at?: string | null
+          uploaded_by: string
+          virus_scan_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_path?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          is_public?: boolean | null
+          mime_type?: string
+          original_filename?: string
+          related_id?: string | null
+          related_table?: string | null
+          updated_at?: string | null
+          uploaded_by?: string
+          virus_scan_status?: string | null
+        }
+        Relationships: []
+      }
       legal_categories: {
         Row: {
           created_at: string | null
@@ -449,6 +536,48 @@ export type Database = {
         }
         Relationships: []
       }
+      security_incidents: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          incident_type: string
+          ip_address: unknown | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          incident_type: string
+          ip_address?: unknown | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          incident_type?: string
+          ip_address?: unknown | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       text_annotations: {
         Row: {
           annotation_type: string | null
@@ -564,6 +693,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           created_at: string | null
@@ -593,10 +746,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "juriste" | "citoyen"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -711,6 +874,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "juriste", "citoyen"],
+    },
   },
 } as const

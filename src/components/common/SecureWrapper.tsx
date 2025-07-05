@@ -1,50 +1,58 @@
 
-import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { Loader2 } from 'lucide-react';
 import { securityMonitor } from '@/utils/enhancedSecurity';
 
 interface SecureWrapperProps {
   children: React.ReactNode;
-  onSecurityViolation?: (threats: string[]) => void;
+  requiredRole?: string;
+  fallback?: React.ReactNode;
 }
 
-export function SecureWrapper({ children, onSecurityViolation }: SecureWrapperProps) {
-  const [securityStatus, setSecurityStatus] = React.useState<'safe' | 'warning' | 'danger'>('safe');
-  const [lastCheck, setLastCheck] = React.useState<Date>(new Date());
+export function SecureWrapper({ children, requiredRole, fallback }: SecureWrapperProps) {
+  const { user, userRole, loading } = useAuth();
 
-  React.useEffect(() => {
-    const report = securityMonitor.getSecurityReport();
-    
-    if (report.last24h > 10) {
-      setSecurityStatus('warning');
-    } else if (report.last24h > 20) {
-      setSecurityStatus('danger');
-    } else {
-      setSecurityStatus('safe');
+  useEffect(() => {
+    // Monitor unauthorized access attempts
+    if (!loading && !user && requiredRole) {
+      securityMonitor.logSecurityEvent('unauthorized_access_attempt', {
+        requiredRole,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+      });
     }
-    
-    setLastCheck(new Date());
-  }, []);
+  }, [user, loading, requiredRole]);
 
-  return (
-    <div className="space-y-4">
-      {securityStatus !== 'safe' && (
-        <Alert variant={securityStatus === 'danger' ? 'destructive' : 'default'}>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {securityStatus === 'warning' 
-              ? 'Activité suspecte détectée. Soyez vigilant avec les entrées utilisateur.'
-              : 'Niveau de menace élevé détecté. Vérifiez les logs de sécurité.'
-            }
-          </AlertDescription>
-        </Alert>
-      )}
-      {children}
-      <div className="text-xs text-gray-500 flex items-center gap-1">
-        <Shield className="w-3 h-3" />
-        Protection active - Dernière vérification: {lastCheck.toLocaleTimeString()}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  if (requiredRole && userRole !== requiredRole && userRole !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-2">Accès refusé</h2>
+          <p className="text-gray-600">
+            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Rôle requis: {requiredRole} | Votre rôle: {userRole || 'Aucun'}
+          </p>
+          {fallback}
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 }
