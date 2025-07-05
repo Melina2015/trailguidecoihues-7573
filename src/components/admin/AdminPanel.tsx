@@ -4,6 +4,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserRoleManager } from './UserRoleManager';
+import { UserStats } from './UserStats';
 import { TestDataGenerator } from './TestDataGenerator';
 import { SecurityMonitor } from '@/components/common/SecurityMonitor';
 import { Settings, Users, Database, Shield } from 'lucide-react';
@@ -55,7 +56,8 @@ export function AdminPanel() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="users">
+        <TabsContent value="users" className="space-y-6">
+          <UserStats />
           <UserRoleManager />
         </TabsContent>
 
@@ -91,3 +93,4 @@ export function AdminPanel() {
     </div>
   );
 }
+
