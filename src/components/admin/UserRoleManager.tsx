@@ -17,6 +17,8 @@ interface UserProfile {
   role?: string;
 }
 
+type AppRole = 'admin' | 'juriste' | 'citoyen';
+
 export function UserRoleManager() {
   const { userRole } = useAuth();
   const { toast } = useToast();
@@ -63,16 +65,27 @@ export function UserRoleManager() {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
+      // Type guard to ensure newRole is a valid AppRole
+      if (!['admin', 'juriste', 'citoyen'].includes(newRole)) {
+        throw new Error('Invalid role');
+      }
+
+      const typedRole = newRole as AppRole;
+
       // Supprimer l'ancien rôle
       await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
-      // Ajouter le nouveau rôle
+      // Ajouter le nouveau rôle avec les bons noms de champs
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+        .insert({ 
+          user_id: userId, 
+          role: typedRole,
+          assigned_by: userRole === 'admin' ? userId : null
+        });
 
       if (error) throw error;
 
